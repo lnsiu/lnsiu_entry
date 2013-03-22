@@ -14,48 +14,42 @@ package
 	Updates:
 	
 	Tasks:
-	-add light and shadow
-	-add bitmap blending function to a percentage value
+		-perhaps move fractal generation to its own class?
+		-add developer info
 	
 	Completed Tasks:
-	-test to dynamically update texture
 	
 	Versions:
-	Flash Builder 4.5
-	Photoshop
+	Flash Builder 4.5 as3
+	Photoshop CS5
+	CrazyBump Beta test
 	
 	Tutorials used:
 	http://gotoandlearn.com/play.php?id=165
 	http://away3d.com/tutorials/Introduction_to_Materials
 	http://www.youtube.com/watch?v=VSiI4FYYuoc
+	//grouping -> http://www.flashmagazine.com/tutorials/detail/away3d_basics_4_-_manipulating_3d_objects/
+	http://away3d.com/forum/viewthread/123/
 	
+	Test in different browser and plattforms:
+	PC:Explorer
+	MAC:Safari
+	FLash Versions: 
 	*/
 	
-	import away3d.bounds.NullBounds;
 	import away3d.containers.View3D;
 	import away3d.controllers.HoverController;
 	import away3d.entities.Mesh;
-	import away3d.errors.AbstractMethodError;
 	import away3d.lights.DirectionalLight;
-	import away3d.materials.ColorMaterial;
-	import away3d.materials.MaterialBase;
-	import away3d.materials.SinglePassMaterialBase;
-	import away3d.materials.SkyBoxMaterial;
 	import away3d.materials.TextureMaterial;
 	import away3d.materials.lightpickers.StaticLightPicker;
-	import away3d.primitives.CubeGeometry;
 	import away3d.primitives.PlaneGeometry;
-	import away3d.textures.BitmapCubeTexture;
 	import away3d.textures.BitmapTexture;
 	import away3d.textures.Texture2DBase;
 	
-	import flash.display.Bitmap;
 	import flash.display.BitmapData;
 	import flash.display.MovieClip;
-	import flash.display.Sprite;
-	import flash.display3D.textures.Texture;
 	import flash.events.Event;
-	import flash.events.MouseEvent;
 	import flash.geom.ColorTransform;
 	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
@@ -88,10 +82,20 @@ package
 		private var oldtextMat:TextureMaterial;
 		private var thelightPicker:StaticLightPicker;
 		
+		private var bmd:BitmapData = new BitmapData(512, 512, true);
+		private var mycircleViewer:CircleViewer;
+		
 		public function lnsiu_entry()
 		{
-			
 			setupScene();
+			setupViewer();
+		}
+		
+		private function setupViewer():void
+		{
+			//provide bitmap to circleviewer somehow
+			mycircleViewer = new CircleViewer(bmd);
+			addChild(mycircleViewer);
 		}
 		
 		private function setupScene():void
@@ -113,6 +117,7 @@ package
 			var planeGeom:PlaneGeometry = new PlaneGeometry(250,250);
 			planeGeom.doubleSided = true;
 			meshPlane = new Mesh(planeGeom, new TextureMaterial(bct));
+			//meshPlane.x = 50;
 
 			//meshPlane.material.bothSides = true;
 			//meshPlane.material.lightPicker = new StaticLightPicker([light1]);
@@ -166,14 +171,14 @@ package
 		
 		private function sceneSettings():void
 		{
-			view.antiAlias = 4;
+			//view.antiAlias = 4;
 			view.backgroundColor = 0xffAAff;			
 		}
 		
 		private function texRender():void
 		{
 			//get 3D view image
-			var bmd:BitmapData = new BitmapData(512, 512, true);
+			//bmd = new BitmapData(512, 512, true);
 			view.stage3DProxy.context3D.present();
 			view.renderer.queueSnapshot(bmd);
 			view.render();
@@ -200,6 +205,8 @@ package
 			
 			meshPlane.material = textMat;
 			meshPlane.material.lightPicker = thelightPicker;
+			
+			//add motion
 			//meshPlane.rotationY +=0.2;
 			
 			//meshPlane.castsShadows = true;
@@ -209,8 +216,12 @@ package
 		
 		protected function loop(event:Event):void
 		{
+			//update views bmp
+			mycircleViewer.bmpD = bmd;
+			//
 			hc.panAngle = mouseX - 256;
 			hc.tiltAngle = mouseY  - 256;
+			
 			view.render();
 			texRender();
 		}
